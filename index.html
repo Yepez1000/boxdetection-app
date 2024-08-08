@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<link href="styles.css" rel="stylesheet" type="text/css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Capture</title>
+       
+</head>
+
+<body>
+    <div class="form-container">
+        <form id="info-form">
+            <label for="operator-name">Operator Name:</label>
+            <select id="operator-name" name="operator-name">
+                <option value="Oscar">Oscar</option>
+                <option value="Julio">Julio</option>
+                <option value="Edgar">Edgar</option>
+            </select>
+
+            <label for="customer">Customer:</label>
+            <input type="text" id="customer" name="customer">
+
+            <label for="As">As:</label>
+            <input type="text" id="As" name="As">
+
+            <label for="Tracking">Tracking:</label>
+            <input type="text" id="Tracking" name="Tracking">
+
+            <label for="Carrier">Carrier:</label>
+            <input type="text" id="Carrier" name="Carrier">
+
+            <button type="button">Get Data</button>
+
+            <label for="weight">Weight:</label>
+            <input type="text" id="weight" name="weight">
+
+            <label for="length">Length:</label>
+            <input type="text" id="length" name="length">
+
+            <label for="width">Width:</label>
+            <input type="text" id="width" name="width">
+
+            <label for="height">Height:</label>
+            <input type="text" id="height" name="height">
+
+            <button type="button" onclick="printLabel()">Print Label</button>
+            <button type="button" onclick="printPackageIDLabel()">Print package ID label</button>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div id="gallery">
+        <h1>Saved Images</h1>
+        <!-- Captured images will be added here -->
+    </div>
+
+    <div id="camera-container">
+        <video id="cameraFeed" autoplay></video>
+        <div id="controls">
+            <button id="captureImage">Capture Image</button>
+            <button id="startCapture">Start Capture</button>
+            <button id="stopCapture" disabled>Stop Capture</button>
+        </div>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <img id="capturedImage" />
+    </div>
+
+    <script src = "script.js"></script>
+</body>
+
+</html>

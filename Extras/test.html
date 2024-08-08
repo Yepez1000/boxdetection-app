@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Capture</title>
+    <style>
+        /* Your styles here */
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <form id="info-form">
+            <!-- Form fields here -->
+            <button type="button" onclick="printLabel()">Print Label</button>
+            <button type="button" onclick="printPackageIDLabel()">Print package ID label</button>
+            <button type="button" id="submitForm">Submit</button>
+        </form>
+    </div>
+
+    <div id="gallery">
+        <h3>Saved Images</h3>
+    </div>
+
+    <div id="camera-container">
+        <video id="cameraFeed" autoplay></video>
+        <div id="controls">
+            <button id="captureImage">Capture Image</button>
+            <button type="button" id="uploadImages">Upload Images</button>
+        </div>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <img id="capturedImage" />
+    </div>
+
+    <script>
+        // JavaScript code
+
+        const captureImageButton = document.getElementById('captureImage');
+        const uploadImagesButton = document.getElementById('uploadImages');
+        const cameraFeed = document.getElementById('cameraFeed');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const gallery = document.getElementById('gallery');
+        const capturedImage = document.getElementById('capturedImage');
+
+        let stream;
+        let images = [];
+
+        function dataURLToBlob(dataURL) {
+            const [header, data] = dataURL.split(',');
+            const mime = header.split(':')[1].split(';')[0];
+            const byteString = atob(data);
+            const u8arr = new Uint8Array(byteString.length);
+
+            for (let i = 0; i < byteString.length; i++) {
+                u8arr[i] = byteString.charCodeAt(i);
+            }
+
+            return new Blob([u8arr], { type: mime });
+        }
+
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                cameraFeed.srcObject = stream;
+            } catch (err) {
+                console.error('Error accessing camera: ', err);
+            }
+        }
+
+        function captureImage() {
+            if (!stream) return;
+
+            canvas.width = cameraFeed.videoWidth;
+            canvas.height = cameraFeed.videoHeight;
+            context.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/jpeg');
+
+            const img = document.createElement('img');
+            img.src = imageData;
+            img.title = `Captured on ${new Date().toLocaleString()}`;
+            img.addEventListener('click', () => {
+                capturedImage.src = imageData;
+            });
+
+            gallery.appendChild(img);
+
+            images.push(imageData);
+        }
+
+        function uploadImages(event) {
+            if (event) {
+                event.preventDefault(); // Prevent default form behavior
+            }
+
+            if (images.length === 0) {
+                console.error('No images to upload');
+                return;
+            }
+
+            const blob = dataURLToBlob(images[images.length - 1]);
+
+            if (!blob) {
+                console.error('Failed to create blob');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', blob, 'captured_image.jpg');
+
+            fetch('http://0.0.0.0:8080/upload', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Upload successful:', data);
+                    document.getElementById('customer').value = data.first_name + ' ' + data.last_name;
+                    document.getElementById('As').value = data.As;
+                })
+                .catch(error => {
+                    console.error('Error uploading image:', error);
+                });
+        }
+
+        document.getElementById('info-form').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent form submission
+        });
+
+        window.onload = startCamera;
+
+        captureImageButton.addEventListener('click', captureImage);
+        uploadImagesButton.addEventListener('click', uploadImages);
+    </script>
+</body>
+
+</html>
